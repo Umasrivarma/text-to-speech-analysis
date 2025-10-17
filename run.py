@@ -6,6 +6,7 @@ import tempfile
 from pydub import AudioSegment
 import speech_recognition as sr
 
+
 st.set_page_config(page_title="Speech ↔ Text Converter", page_icon="🎙️", layout="centered")
 st.title("🎙️ Text ↔ Speech Converter")
 
@@ -62,3 +63,4 @@ if uploaded_audio is not None:
 
 st.markdown("---")
 st.markdown("✨ Built with Streamlit, gTTS & SpeechRecognition ✨")
+
