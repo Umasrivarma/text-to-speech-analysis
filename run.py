@@ -8,6 +8,19 @@ import speech_recognition as sr
 st.set_page_config(page_title="Speech ↔ Text Converter", page_icon="🎙️", layout="centered")
 st.title("🎙️ Text ↔ Speech Converter")
 
+
+text = st.text_area("Enter text to convert to speech:")
+
+if st.button("Convert to Audio"):
+    if text.strip():
+        tts = gTTS(text)
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
+        tts.save(temp_file.name)
+        st.audio(temp_file.name, format="audio/mp3")
+        st.success("✅ Conversion complete!")
+    else:
+        st.warning("Please enter some text.")
+
 # ----------------------------
 # TEXT TO SPEECH
 # ----------------------------
@@ -60,3 +73,4 @@ if uploaded_audio is not None:
 
 st.markdown("---")
 st.markdown("✨ Built with Streamlit, gTTS & SpeechRecognition ✨")
+
