@@ -1,6 +1,10 @@
 import streamlit as st
 from gtts import gTTS
 import os
+import speech_recognition as sr
+from pydub import AudioSegment
+import io
+
 
 st.title("🧠 Unstructured Data Analysis")
 
@@ -52,4 +56,5 @@ with tab2:
             st.success("✅ Transcription complete!")
             st.subheader("Transcribed Text")
             st.write(result["text"])
+
 
