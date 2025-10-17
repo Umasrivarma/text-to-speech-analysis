@@ -3,9 +3,7 @@ from gtts import gTTS
 import os
 import io
 import tempfile
-from pydub import AudioSegment
 import speech_recognition as sr
-
 
 st.set_page_config(page_title="Speech ↔ Text Converter", page_icon="🎙️", layout="centered")
 st.title("🎙️ Text ↔ Speech Converter")
@@ -27,7 +25,6 @@ if st.button("🔊 Convert to Speech"):
     else:
         st.warning("Please enter text first.")
 
-
 # ----------------------------
 # SPEECH TO TEXT
 # ----------------------------
@@ -36,31 +33,30 @@ st.header("🎤 Speech → Text")
 uploaded_audio = st.file_uploader("Upload an audio file (wav, mp3, m4a):", type=["wav", "mp3", "m4a"])
 
 if uploaded_audio is not None:
-    # Convert uploaded file to WAV format for recognition
-    audio_bytes = uploaded_audio.read()
-    audio = AudioSegment.from_file(io.BytesIO(audio_bytes))
-    wav_io = io.BytesIO()
-    audio.export(wav_io, format="wav")
-    wav_io.seek(0)
+    # Save uploaded file temporarily
+    temp_audio = tempfile.NamedTemporaryFile(delete=False)
+    temp_audio.write(uploaded_audio.read())
+    temp_audio_path = temp_audio.name
 
-    st.audio(wav_io, format="audio/wav")
+    st.audio(temp_audio_path, format=f"audio/{uploaded_audio.type.split('/')[-1]}")
 
     if st.button("📝 Transcribe Audio"):
         recognizer = sr.Recognizer()
-        with sr.AudioFile(wav_io) as source:
+        with sr.AudioFile(temp_audio_path) as source:
             audio_data = recognizer.record(source)
 
         with st.spinner("Transcribing..."):
             try:
                 text_output = recognizer.recognize_google(audio_data)
                 st.success("✅ Transcription complete!")
-                st.subheader("Transcribed Text:")
+                st.subheader("🧾 Transcribed Text:")
                 st.write(text_output)
             except sr.UnknownValueError:
                 st.error("⚠️ Could not understand the speech.")
             except sr.RequestError:
                 st.error("⚠️ Network error — please try again later.")
 
+    os.remove(temp_audio_path)
+
 st.markdown("---")
 st.markdown("✨ Built with Streamlit, gTTS & SpeechRecognition ✨")
-
