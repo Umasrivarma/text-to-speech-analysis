@@ -1,5 +1,7 @@
-streamlit==1.38.0
+streamlit==1.28.0
 gTTS==2.5.4
-whisper-timestamped==1.15.0
-torch==2.3.0
+SpeechRecognition==3.10.0
 ffmpeg-python==0.2.0
+torch==2.3.0
+whisper-timestamped==1.15.0
+rich==13.9.4
