@@ -1,73 +1,35 @@
 import streamlit as st
-from gtts import gTTS
-import tempfile
 import openai
+from gtts import gTTS
 import os
 
-# ----------------------------
-# Streamlit page setup
-# ----------------------------
-st.set_page_config(page_title="Text ↔ Speech Converter", page_icon="🎙️", layout="centered")
-st.title("🎙️ Text ↔ Speech Converter")
+openai.api_key = "YOUR_KEY"
 
-# ----------------------------
-# OpenAI API Key (required for STT)
-# ----------------------------
-st.sidebar.header("OpenAI API Key")
-openai_api_key = st.sidebar.text_input("Enter your OpenAI API Key", type="password")
+st.title("Text-to-Speech & Speech-to-Text App")
 
-if not openai_api_key:
-    st.warning("⚠️ Enter your OpenAI API key in the sidebar to enable Speech-to-Text")
-    st.stop()
-
-openai.api_key = openai_api_key
-
-# ----------------------------
-# TEXT TO SPEECH
-# ----------------------------
-st.header("🗨️ Text → Speech")
-
-text_input = st.text_area("Enter text to convert:", placeholder="Type something...")
-
-if st.button("🔊 Convert to Speech"):
-    if text_input.strip():
+# ------------------- Text-to-Speech -------------------
+st.header("Text-to-Speech")
+text_input = st.text_area("Enter text to convert to speech:")
+if st.button("Convert to Speech"):
+    if text_input:
         tts = gTTS(text_input)
-        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
-        tts.save(temp_file.name)
-        st.audio(temp_file.name, format="audio/mp3")
-        st.success("✅ Speech generated successfully!")
+        tts.save("output.mp3")
+        st.audio("output.mp3", format="audio/mp3")
     else:
         st.warning("Please enter some text.")
 
-# ----------------------------
-# SPEECH TO TEXT
-# ----------------------------
-st.header("🎤 Speech → Text")
-
-uploaded_audio = st.file_uploader("Upload an audio file (mp3, wav, m4a):", type=["mp3","wav","m4a"])
-
-if uploaded_audio:
-    temp_audio = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
-    temp_audio.write(uploaded_audio.read())
-    temp_audio.close()
-
-    st.audio(temp_audio.name, format=f"audio/{uploaded_audio.type.split('/')[-1]}")
-
-    if st.button("📝 Transcribe Audio"):
-        with st.spinner("Transcribing audio using OpenAI Whisper API..."):
-            try:
-                with open(temp_audio.name, "rb") as audio_file:
-                    transcript = openai.audio.transcriptions.create(
-                        model="whisper-1",
-                        file=audio_file
-                    )
-                st.success("✅ Transcription complete!")
-                st.subheader("🧾 Transcribed Text")
-                st.write(transcript.text)
-            except Exception as e:
-                st.error(f"❌ Error transcribing audio: {e}")
-
-    os.remove(temp_audio.name)
-
-st.markdown("---")
-st.markdown("✨ Built with Streamlit, gTTS & OpenAI Whisper API ✨")
+# ------------------- Speech-to-Text -------------------
+st.header("Speech-to-Text")
+audio_file = st.file_uploader("Upload an audio file", type=["mp3", "wav", "m4a"])
+if audio_file:
+    with open("temp_audio.wav", "wb") as f:
+        f.write(audio_file.getbuffer())
+    try:
+        transcript = openai.audio.transcriptions.create(
+            model="whisper-1",
+            file=open("temp_audio.wav", "rb")
+        )
+        st.write("Transcription:")
+        st.text(transcript.text)
+    except Exception as e:
+        st.error(f"Error transcribing audio: {e}")
