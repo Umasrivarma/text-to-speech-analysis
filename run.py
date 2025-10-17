@@ -28,33 +28,40 @@ with tab2:
 
     
     # ------------------ SPEECH TO TEXT ------------------
-    st.header("🗣️ Speech to Text")
+   
+# ------------------ SPEECH TO TEXT ------------------
+st.header("🗣️ Speech to Text")
 
-    @st.cache_resource(show_spinner=False)
-    def load_whisper_model(model_name="base"):
-        return whisper.load_model(model_name)
+# Upload audio
+uploaded_audio = st.file_uploader("Upload audio file (wav, mp3, m4a)", type=["wav","mp3","m4a"])
 
-    model = load_whisper_model("base")
-    st.success("✅ Whisper model loaded")
+if uploaded_audio:
+    # Convert uploaded audio to PCM WAV
+    audio_bytes = uploaded_audio.read()
+    audio = AudioSegment.from_file(io.BytesIO(audio_bytes))
+    wav_io = io.BytesIO()
+    audio.export(wav_io, format="wav")
+    wav_io.seek(0)
 
+    # Play audio in Streamlit
+    st.audio(wav_io, format="audio/wav")
 
-    uploaded_audio = st.file_uploader("Upload an audio file (wav/mp3/m4a)", type=["wav", "mp3", "m4a"])
+    if st.button("Transcribe Audio"):
+        recognizer = sr.Recognizer()
+        wav_io.seek(0)
+        with sr.AudioFile(wav_io) as source:
+            audio_data = recognizer.record(source)
 
-    if uploaded_audio:
-        # Save uploaded audio temporarily
-        temp_file_path = "temp_audio." + uploaded_audio.name.split(".")[-1]
-        with open(temp_file_path, "wb") as f:
-            f.write(uploaded_audio.read())
+        with st.spinner("Transcribing..."):
+            try:
+                text_output = recognizer.recognize_google(audio_data)
+                st.success("✅ Transcription complete!")
+                st.subheader("Transcribed Text")
+                st.write(text_output)
+            except sr.UnknownValueError:
+                st.error("Speech not recognized.")
+            except sr.RequestError:
+                st.error("Google API unavailable or network error.")
 
-        st.audio(temp_file_path)
-
-
-        if st.button("Transcribe Audio"):
-            with st.spinner("Transcribing with Whisper..."):
-                result = model.transcribe(temp_file_path)
-
-            st.success("✅ Transcription complete!")
-            st.subheader("Transcribed Text")
-            st.write(result["text"])
 
 
