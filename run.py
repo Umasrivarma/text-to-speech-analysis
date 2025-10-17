@@ -1,67 +1,57 @@
 import streamlit as st
 from gtts import gTTS
+import tempfile
 import os
-import speech_recognition as sr
-from pydub import AudioSegment
-import io
+import whisper
 
+st.set_page_config(page_title="Speech ↔ Text Converter", page_icon="🗣️", layout="centered")
 
-st.title("🧠 Unstructured Data Analysis")
+st.title("🗣️ Text ↔ Speech Converter")
 
-tab1, tab2, tab3 = st.tabs(["🖼️ Image Analysis", "🎧 Audio Analysis", "📝 Text Analysis"])
+# =====================
+# TEXT TO SPEECH SECTION
+# =====================
+st.header("🗨️ Text to Speech")
 
-with tab2:
+text_input = st.text_area("Enter text you want to convert to speech:", placeholder="Type something...")
 
-    # ------------------ TEXT TO SPEECH ------------------
-    st.header("🗣️ Text to Speech")
-    text = st.text_area("Enter text to convert to speech:")
-
-    if st.button("Convert to Audio"):
-        if text.strip():
-            tts = gTTS(text, lang='en')
-            tts.save("output.mp3")
-            audio_file = open("output.mp3", "rb")
-            st.audio(audio_file.read(), format='audio/mp3')
+if st.button("🎧 Convert to Speech"):
+    if text_input.strip():
+        with st.spinner("Converting text to speech..."):
+            tts = gTTS(text_input)
+            temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
+            tts.save(temp_file.name)
+            st.audio(temp_file.name, format="audio/mp3")
             st.success("✅ Conversion complete!")
-        else:
-            st.warning("Please enter some text.")
-
-    
-    # ------------------ SPEECH TO TEXT ------------------
-   
-# ------------------ SPEECH TO TEXT ------------------
-st.header("🗣️ Speech to Text")
-
-# Upload audio
-uploaded_audio = st.file_uploader("Upload audio file (wav, mp3, m4a)", type=["wav","mp3","m4a"])
-
-if uploaded_audio:
-    # Convert uploaded audio to PCM WAV
-    audio_bytes = uploaded_audio.read()
-    audio = AudioSegment.from_file(io.BytesIO(audio_bytes))
-    wav_io = io.BytesIO()
-    audio.export(wav_io, format="wav")
-    wav_io.seek(0)
-
-    # Play audio in Streamlit
-    st.audio(wav_io, format="audio/wav")
-
-    if st.button("Transcribe Audio"):
-        recognizer = sr.Recognizer()
-        wav_io.seek(0)
-        with sr.AudioFile(wav_io) as source:
-            audio_data = recognizer.record(source)
-
-        with st.spinner("Transcribing..."):
-            try:
-                text_output = recognizer.recognize_google(audio_data)
-                st.success("✅ Transcription complete!")
-                st.subheader("Transcribed Text")
-                st.write(text_output)
-            except sr.UnknownValueError:
-                st.error("Speech not recognized.")
-            except sr.RequestError:
-                st.error("Google API unavailable or network error.")
+    else:
+        st.warning("Please enter some text first.")
 
 
+# =====================
+# SPEECH TO TEXT SECTION
+# =====================
+st.header("🎤 Speech to Text")
 
+audio_file = st.file_uploader("Upload an audio file (MP3, WAV, M4A):", type=["mp3", "wav", "m4a"])
+
+if audio_file is not None:
+    with st.spinner("Transcribing speech..."):
+        # Save uploaded audio temporarily
+        temp_audio = tempfile.NamedTemporaryFile(delete=False)
+        temp_audio.write(audio_file.read())
+        temp_audio_path = temp_audio.name
+
+        # Load Whisper model
+        model = whisper.load_model("base")
+
+        # Transcribe
+        result = model.transcribe(temp_audio_path)
+        transcription = result["text"]
+
+        st.subheader("🧾 Transcription Result:")
+        st.write(transcription)
+
+        os.remove(temp_audio_path)
+
+st.markdown("---")
+st.markdown("🔹 Developed with ❤️ using Streamlit, gTTS, and Whisper")
