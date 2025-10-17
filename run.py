@@ -3,7 +3,7 @@ import openai
 from gtts import gTTS
 import os
 
-openai.api_key = "YOUR_KEY"
+openai.api_key = "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"
 
 st.title("Text-to-Speech & Speech-to-Text App")
 
@@ -33,3 +33,4 @@ if audio_file:
         st.text(transcript.text)
     except Exception as e:
         st.error(f"Error transcribing audio: {e}")
+
