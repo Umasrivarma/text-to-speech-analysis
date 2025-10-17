@@ -11,8 +11,7 @@ st.title("🎙️ Text-to-Speech & Speech-to-Text App")
 # 🔑 Get API key securely from Streamlit Secrets
 # In Streamlit Cloud, add your key in Settings → Secrets → Add:
 # OPENAI_API_KEY = "your_actual_api_key"
-openai.api_key = st.secrets["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"]
-
+openai.api_key = st.secrets["OPENAI_API_KEY"]
 # ------------------- TEXT → SPEECH -------------------
 st.header("🗣️ Text-to-Speech (TTS)")
 text_input = st.text_area("Enter text to convert to speech:")
@@ -62,3 +61,4 @@ if audio_file is not None:
             st.error(f"Error transcribing audio: {e}")
         finally:
             os.remove(temp_audio.name)
+
