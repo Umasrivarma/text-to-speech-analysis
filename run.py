@@ -40,9 +40,6 @@ if st.button("Convert to Speech"):
         st.warning("Please enter some text.")
 
 # ------------------- Speech-to-Text -------------------
-st.header("🎧 Speech-to-Text (STT)")
-audio_file = st.file_uploader("Upload audio (mp3, wav, m4a, ogg)", type=["mp3", "wav", "m4a", "ogg"])
-MAX_FILE_SIZE_MB = 25
 
 
 
@@ -61,3 +58,4 @@ MAX_FILE_SIZE_MB = 25
                 st.warning(f"Unexpected error with OpenAI API: {e}. Trying local transcription…")
 
       
+
