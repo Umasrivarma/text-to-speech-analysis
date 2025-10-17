@@ -1,4 +1,5 @@
 streamlit==1.38.0
 gTTS==2.5.4
-openai-whisper==20231117
+whisper-timestamped==1.15.0
 torch==2.3.0
+ffmpeg-python==0.2.0
