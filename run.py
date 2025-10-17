@@ -1,7 +1,6 @@
 import streamlit as st
 from gtts import gTTS
 import os
-import whisper
 
 st.title("🧠 Unstructured Data Analysis")
 
@@ -53,3 +52,4 @@ with tab2:
             st.success("✅ Transcription complete!")
             st.subheader("Transcribed Text")
             st.write(result["text"])
+
