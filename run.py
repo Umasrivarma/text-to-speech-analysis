@@ -11,9 +11,9 @@ st.set_page_config(page_title="Text ↔ Speech Converter", page_icon="🎙️", 
 st.title("🎙️ Text ↔ Speech Converter")
 
 # ----------------------------
-# Configure OpenAI API key
+# OpenAI API Key (required for STT)
 # ----------------------------
-st.sidebar.header("API Settings")
+st.sidebar.header("OpenAI API Key")
 openai_api_key = st.sidebar.text_input("Enter your OpenAI API Key", type="password")
 
 if not openai_api_key:
@@ -49,7 +49,7 @@ uploaded_audio = st.file_uploader("Upload an audio file (mp3, wav, m4a):", type=
 if uploaded_audio:
     temp_audio = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
     temp_audio.write(uploaded_audio.read())
-    temp_audio.close()  # close so OpenAI can read it
+    temp_audio.close()
 
     st.audio(temp_audio.name, format=f"audio/{uploaded_audio.type.split('/')[-1]}")
 
